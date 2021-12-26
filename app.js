@@ -1,7 +1,4 @@
-// if (process.env.NODE_ENV){
-//     require('dotenv').config();
-// } Yishai hui
-
+require('dotenv').config();
 const createError = require("http-errors");
 const express = require("express");
 const path = require("path");
@@ -17,12 +14,50 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+//app.use('./DAL');
 
-app.use('/api/students', require('./modules/routes/students'));
-app.use('/api/classes', require('./modules/routes/classes'));
-app.use('/',function(req,res,next){
-    res.send('OK');
+const dal=require('./DAL');
+const model=require('./models/index');
+
+//app.use('/api/students', require('./modules/routes/student'));
+//app.use('/api/classes', require('./modules/routes/classes'));
+
+app.get('/', function (req, res) {
+    res.send('home page');
+  })
+
+app.get('/why',function(req,res){
+    res.send("uthatswhy");
 });
+
+const Student = require("./models/Students");
+app.get('/Student', async (req, res) => {
+    try {
+    //   const Student = await dal.Students.findAll()
+    //   res.send(Student)
+    //   return res.json(Student)
+    } catch (err) {
+      console.log(err)
+      return res.status(500).json({ error: 'Something went wrong' })
+    }
+  })
+
+
+app.get("/get", (req, res) =>{
+    console.log(model.findAll())
+    model.Students.findAll()
+    .then((students)=>{
+        res.send(students)
+    })
+  });
+
+  app.get("/getit", (req, res) =>{
+    console.log(Student.findAll())
+    Student.findAll()
+    .then((students)=>{
+        res.send(students)
+    })
+  });
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -39,6 +74,8 @@ app.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.send("error");
 });
+
+
 
 module.exports = app;
 

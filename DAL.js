@@ -1,9 +1,15 @@
-const sequelize = require('sequelize');
+//const path = require("path");
+//const fs = require('fs');
+//const sequelize = require('sequelize');
 const config = require('./config');
-const ClassModel = require('./modules/routes/models/ClassModel');
-const StudentModel = require('./modules/routes/models/StudentModel');
+//const Classes = require('./models/Classes');
+//const Students = require('./models/Studens');
 const db = config.db.sequelizeConn;
-const __dirname = "./modules/models/"
+//const __dirname = "./models/"
+const models = require('./models/index')
+
+console.log("hi")
+console.log(models.Students)
 
 db.authenticate().then(() => {
   console.log('Connection established successfully.');
@@ -13,26 +19,26 @@ db.authenticate().then(() => {
 });
 
 Object.keys(db.models).forEach(function(modelName) {
-  if ("associate" in db.models[ClassModel]) {
-    db.models[StudentModel].associate();
+  if ("associate" in db.models[modelName]) {
+    db.models[modelName].associate();
   }
 });
 
 db.sync();
 
-fs.readdirSync(__dirname)
-.filter((file) => {
-  return (
-    file.indexOf('.') !== 0 && file !== basename && file.slice(-3) === '.js'
-  )
-})
-.forEach((file) => {
-  const model = require(path.join(__dirname, file))(
-    sequelize,
-    Sequelize.DataTypes
-  )
-  db[model.name] = model
-})
+// fs.readdirSync(__dirname)
+// .filter((file) => {
+//   return (
+//     file.indexOf('.') !== 0 && file !== basename && file.slice(-3) === '.js'
+//   )
+// })
+// .forEach((file) => {
+//   const model = require(path.join(__dirname, file))(
+//     sequelize,
+//     Sequelize.DataTypes
+//   )
+//   db[model.name] = model
+// })
 
 module.exports = {db,
    // Add all DB functionality
