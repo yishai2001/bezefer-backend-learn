@@ -1,4 +1,7 @@
 const Sequelize = require('sequelize');
+const dotenv = require('dotenv');
+dotenv.config();
+//const models= require('./models')
 //const Student = require('./models/Students');
 //const __dirname = "./modules/models/"
 
@@ -34,8 +37,11 @@ const sequelize =  new Sequelize(process.env.DB_DATABASE, process.env.DB_USERNAM
   //   db[model.name] = model
   // })
 
-module.exports =  {
-    db:{
-        sequelizeConn: sequelize,
-    },
-  }
+// module.exports =  {
+//     db:{
+//         sequelizeConn: sequelize,
+//         //models:models,
+//     },
+//   }
+
+module.exports =  sequelize;

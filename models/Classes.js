@@ -1,38 +1,64 @@
-const { Model } = require('sequelize')
-//const StudentModel = require('./StudentModel')
-module.exports = (sequelize, DataTypes) => {
-  class Class extends Model { 
+// const { Model } = require('sequelize')
+// //const StudentModel = require('./StudentModel')
+// module.exports = (sequelize, DataTypes) => {
+//   class Class extends Model { 
 
-    // static associate({ Students }) {
-    //     this.hasMany(Students, { foreignKey: 'classId', as: 'student' })
-    // }       
+//     // static associate({ Students }) {
+//     //     this.hasMany(Students, { foreignKey: 'classId', as: 'student' })
+//     // }       
 
-    // toJSON() {
-    //   return { ...this.get(), id: undefined }
-    // }
-  }
-  Class.init(
-    {
-      name: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      maxSeats: {
-        type: DataTypes.INTEGER ,
-        allowNull: false
-      },
-      currentCapacity: {
-        type: DataTypes.INTEGER ,
-        allowNull: false
-      },
-    },
-    {
-      sequelize,
-      tableName: 'Classes',
-      modelName: 'Class',
-      createdAt: 'date_created',
-      updatedAt: 'date_updated',
-    }
-  )
-  return Class
-}
+//     // toJSON() {
+//     //   return { ...this.get(), id: undefined }
+//     // }
+//   }
+//   Class.init(
+//     {
+//       name: {
+//         type: DataTypes.STRING,
+//         allowNull: true,
+//       },
+//       maxSeats: {
+//         type: DataTypes.INTEGER ,
+//         allowNull: false
+//       },
+//       currentCapacity: {
+//         type: DataTypes.INTEGER ,
+//         allowNull: false
+//       },
+//     },
+//     {
+//       sequelize,
+//       tableName: 'Classes',
+//       modelName: 'Class',
+//       createdAt: 'date_created',
+//       updatedAt: 'date_updated',
+//     }
+//   )
+//   return Class
+// }
+
+
+const  Sequelize = require('sequelize');
+const db = require('../config');
+//const db = config.db.sequelizeConn;
+
+const Classes = db.define('Class', {
+  classId: {
+    type: Sequelize.UUID ,
+    primaryKey: true,
+  },
+  name: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  maxSeats: {
+    type: Sequelize.INTEGER ,
+    allowNull: false
+  },
+  currentCapacity: {
+    type: Sequelize.INTEGER ,
+    allowNull: false
+  },
+},
+);
+module.exports = Classes;

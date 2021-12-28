@@ -1,15 +1,22 @@
 //const path = require("path");
 //const fs = require('fs');
 //const sequelize = require('sequelize');
-const config = require('./config');
+const db = require('./config');
 //const Classes = require('./models/Classes');
 //const Students = require('./models/Studens');
-const db = config.db.sequelizeConn;
+
+//const db = config.db.sequelizeConn;
+//const db = config.sequelize;
 //const __dirname = "./models/"
-const models = require('./models/index')
+const models = require('./models/Students')
 
 console.log("hi")
 console.log(models.Students)
+//console.log(models.Classes)
+//console.log(models)
+//console.log(db.models)
+
+//db.models=models;
 
 db.authenticate().then(() => {
   console.log('Connection established successfully.');
@@ -26,6 +33,8 @@ Object.keys(db.models).forEach(function(modelName) {
 
 db.sync();
 
+//db.define()
+
 // fs.readdirSync(__dirname)
 // .filter((file) => {
 //   return (
@@ -39,6 +48,7 @@ db.sync();
 //   )
 //   db[model.name] = model
 // })
+//console.log(db.models)
 
 module.exports = {db,
    // Add all DB functionality
