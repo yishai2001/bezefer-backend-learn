@@ -1,21 +1,25 @@
 {
   "name": "bezefer-back",
+  "type": "commonjs",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "SET NODE_ENV=dev&&nodemon index.js"
+    "dev": "SET NODE_ENV=dev&&nodemon index.js",
+    "staart": "nodemon --exec babel-node index.js"
   },
   "repository": {
     "type": "git",
     "url": "https://DigitalLearn@dev.azure.com/DigitalLearn/Bezefer-Back/_git/Bezefer-Back"
   },
-  
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@babel/core": "^7.16.5",
+    "@babel/node": "^7.16.5",
+    "@babel/preset-env": "^7.16.5",
     "async": "^2.6.2",
     "cookie-parser": "^1.4.4",
     "cors": "^2.8.5",

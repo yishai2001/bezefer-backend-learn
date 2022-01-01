@@ -1,49 +1,62 @@
 const express = require('express')
 const router = express.Router();
-const Classes = require('../models/Classes')
+const models = require('../models/')
 const dal=require('../DAL');
-//const db=dal.db;
 
-//get all class
-router.get('/allClasses', async (req, res) => {
+//get all classes
+router.get('/allClasses', async function (req, res) {
   try {
-    const classList = await Classes.findAll()
+    const cla = await models.Classes.findAll()
 
-    return res.json(classList)
+    return res.json(cla)
   } catch (err) {
     console.log(err)
     return res.status(500).json({ error: 'Something went wrong' })
   }
 })
 
-router.post('/addStudent', async (req, res) => {
-  //const {  firstName, lastName, age, classId, profession } = req.body
-  const id=666555, firstName="ליבי", lastName="חביבי", age=20, classId=3, profession="ספורט";
+//deletes a class
+router.delete('/delete/:id', async function (req, res) {
+  const id  = req.params.id;
+  try {
+    const ids = await models.Classes.destroy({where: {classId: id}})
+
+    return res.json(ids)
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({ error: 'Something went wrong' })
+  }
+})
+
+//update capacity
+router.put('/update/:id/:update', async function (req, res) {
+  const id  = req.params.id;
+  const update  = req.params.update;
+  try {
+    const cla = await models.Classes.findOne({where: {classId: id}});
+    cla.currentCapacity += +update;
+    const ids = await models.Classes.update(cla, {where: {classId: id}})
+
+    return res.json(ids)
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({ error: 'Something went wrong' })
+  }
+})
+
+//adds a class
+router.post('/addClass', async function(req, res) {
+  const data=req.body;
+  let {classId, name, maxSeats} = data;
 
   try {
-    const Student = await Classes.create({id, firstName, lastName, age, classId, profession })
+    const cla = await models.Classes.create({classId, name, maxSeats, currentCapacity:0})
 
-    return res.json(user)
+    return res.json(cla)
   } catch (err) {
     console.log(err)
     return res.status(500).json(err)
   }
 })
-
-
-// app.get('/users/:uuid', async (req, res) => {
-//   const uuid = req.params.uuid
-//   try {
-//     const user = await User.findOne({
-//       where: { uuid },
-//       include: 'posts',
-//     })
-
-//     return res.json(user)
-//   } catch (err) {
-//     console.log(err)
-//     return res.status(500).json({ error: 'Something went wrong' })
-//   }
-// })
 
 module.exports =router;

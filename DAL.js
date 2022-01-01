@@ -10,8 +10,6 @@ const db = require('./config');
 //const __dirname = "./models/"
 const models = require('./models/Students')
 
-console.log("hi")
-console.log(models.Students)
 //console.log(models.Classes)
 //console.log(models)
 //console.log(db.models)
