@@ -1,9 +1,6 @@
 const Sequelize = require('sequelize');
 const dotenv = require('dotenv');
 dotenv.config();
-//const models= require('./models')
-//const Student = require('./models/Students');
-//const __dirname = "./modules/models/"
 
 // Override timezone formatting for MSSQL
 Sequelize.DATE.prototype._stringify = function _stringify(date, options) {
@@ -22,26 +19,5 @@ const sequelize =  new Sequelize(process.env.DB_DATABASE, process.env.DB_USERNAM
       }
     }
   });
-  
-  // fs.readdirSync(__dirname)
-  // .filter((file) => {
-  //   return (
-  //     file.indexOf('.') !== 0 && file !== basename && file.slice(-3) === '.js'
-  //   )
-  // })
-  // .forEach((file) => {
-  //   const model = require(path.join(__dirname, file))(
-  //     sequelize,
-  //     Sequelize.DataTypes
-  //   )
-  //   db[model.name] = model
-  // })
-
-// module.exports =  {
-//     db:{
-//         sequelizeConn: sequelize,
-//         //models:models,
-//     },
-//   }
 
 module.exports =  sequelize;

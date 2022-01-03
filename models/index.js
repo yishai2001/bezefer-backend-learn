@@ -1,10 +1,10 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
+//const fs = require('fs');
+//const path = require('path');
 
 const Sequelize = require('sequelize');
-const basename = path.basename(__filename);
+//const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.js')[env];
 const db = {};
@@ -42,8 +42,5 @@ db["Students"].belongsTo(Classes, { foreignKey: 'classId', as: 'Class' });
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
-
-//db.sequelize.sync({ force: true });
-//db.sequelize.sync()
 
 module.exports = db;
