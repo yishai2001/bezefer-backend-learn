@@ -37,11 +37,13 @@ const Students = require('./Students');
 db["Classes"]=Classes;
 db["Students"]=Students;
 
-db["Classes"].hasMany(Students, { foreignKey: 'classId', as: 'student' });
-db["Students"].belongsTo(Students, { foreignKey: 'classId', as: 'class' });
+db["Classes"].hasMany(Students, { foreignKey: 'classId', as: 'Student' });
+db["Students"].belongsTo(Classes, { foreignKey: 'classId', as: 'Class' });
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+//db.sequelize.sync({ force: true });
+//db.sequelize.sync()
 
 module.exports = db;

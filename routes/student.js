@@ -15,22 +15,15 @@ router.get('/allStudents', async function (req, res) {
   }
 })
 
-//get all students' id
-router.get('/allStudentsId', async function (req, res) {
-  try {
-    const ids = await models.Students.findAll({attributes: ['id']})
-
-    return res.json(ids)
-  } catch (err) {
-    console.log(err)
-    return res.status(500).json({ error: 'Something went wrong' })
-  }
-})
-
 //deletes a student
 router.delete('/delete/:id', async function (req, res) {
   const id  = req.params.id;
   try {
+    const stu = await models.Students.findOne({where: {id}});
+    if (stu.classId !== null){
+      const oldClass = await models.Classes.findOne({where: {classId: stu.classId}});
+      await models.Classes.update({currentCapacity: oldClass.currentCapacity -1}, {where: {classId:stu.classId}, returning: true, plain: true})
+    }
     const ids = await models.Students.destroy({where: {id}})
 
     return res.json(ids)
@@ -49,16 +42,13 @@ router.put('/update/:id/:classId', async function (req, res) {
     //old class -1
     if (stu.classId !== null){
       const oldClass = await models.Classes.findOne({where: {classId: stu.classId}});
-      oldClass.currentCapacity--;
-      await models.Classes.update(oldClass, {where: {classId:stu.classId}})
+      await models.Classes.update({currentCapacity: oldClass.currentCapacity -1}, {where: {classId:stu.classId}, returning: true, plain: true})
     }
     //new class +1
     const newClass = await models.Classes.findOne({where: {classId:classId}});
-    newClass.currentCapacity++;
-    await models.Classes.update(newClass, {where: {classId:classId}})
-    stu.classId = classId;
-    const ids = await models.Students.update(stu, {where: {id}})
-    return res.json(stu)
+    await models.Classes.update({currentCapacity:newClass.currentCapacity +1}, {where: {classId:classId}, returning: true, plain: true})
+    const ids = await models.Students.update({classId:classId}, {where: {id: id}, returning: true, plain: true})
+    return res.json(ids)
   } catch (err) {
     console.log(err)
     return res.status(500).json({ error: 'Something went wrong' })
