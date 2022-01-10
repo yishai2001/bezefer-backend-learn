@@ -1,6 +1,5 @@
-//const sequelize = require('sequelize');
 const db = require('./config');
-const models = require('./models/')
+const models = require('./models/');
 
 db.authenticate().then(() => {
   console.log('Connection established successfully.');
@@ -16,134 +15,74 @@ Object.keys(db.models).forEach(function(modelName) {
 });
 
 db.sync();
+async function getAll(modelName) {
+  if (models[modelName] !== undefined)
+    return models[modelName].findAll();
+};
 
-// gets the model name and return its content
-async function getAll(req, res) {
-  const modelName  = req.params.modelName;
-  try {
-    if (modelName === "Classes" || modelName === "Students"){
-    const allData = await models[modelName].findAll();
-    return res.json(allData);
-    }
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({ error: 'Something went wrong' });
+async function getOne(modelName, id, paramName){
+  if (models[modelName] !== undefined){
+    let condition ={where:{}};
+    condition.where[paramName]=id;
+    condition.transaction= t;
+    return models[modelName].findAll(condidtion);
   }
 }
 
-// gets the model name and an id. deletes the data by the id
-async function remove (req, res) {
-  const modelName  = req.params.modelName;
-  const id  = req.params.id;
-  try {
-    let param;
-    if (modelName === "Classes")
-      param = await models.Classes.destroy({where: {classId: id}});
+async function remove (modelName, id, paramName) {
+  return db.transaction(async (t) => {
     if (modelName === "Students"){
-      const student = await models.Students.findOne({where: {id}});
-      //update currentCapacity
-      if (student.classId !== null){
-        const oldClass = await models.Classes.findOne({where: {classId: student.classId}});
-        await models.Classes.update({currentCapacity: oldClass.currentCapacity -1}, {where: {classId:student.classId}, returning: true, plain: true});
-      }
-      param = await models.Students.destroy({where: {id}});
+      const student = await models.Students.findOne({where: {id}, transaction: t });
+      models.Classes.decrement({currentCapacity: 1}, { where: { classId: student.classId }, transaction: t})
     }
-    return res.json(param);
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({ error: 'Something went wrong' });
-  }
+    if (models[modelName] !== undefined){
+      let condition ={where:{}};
+      condition.where[paramName]=id;
+      condition.transaction= t;
+      return await models[modelName].destroy(condition);
+    }
+})
 }
 
-//adds a class
-async function addClass(req, res) {
-  const data=req.body;
-  let {classId, name, maxSeats} = data;
-
-  try {
-    const cla = await models.Classes.create({classId, name, maxSeats, currentCapacity:0});
-
-    return res.json(cla);
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json(err);
-  }
-}
-
-//adss a student
-async function addStudent(req, res) {
-  const data=req.body;
-  let {id, firstName, lastName, age, profession} = data;
-
-  try {
-    const Student = await models.Students.create({id, firstName, lastName, age, profession});
-
-    return res.json(Student);
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json(err);
-  }
+async function add(modelName, newObject) {
+  if (models[modelName] !== undefined)
+    return await models[modelName].create(newObject, { transaction: t });
 }
 
 //update student's class and capacity
-async function updateClass(req, res) {
-  const id  = req.params.id;
-  const classId  = req.params.classId;
-  try {
-    const stu = await models.Students.findOne({where: {id}});
-    //old class -1
-    if (stu.classId !== null){
-      const oldClass = await models.Classes.findOne({where: {classId: stu.classId}});
-      await models.Classes.update({currentCapacity: oldClass.currentCapacity -1}, {where: {classId:stu.classId}, returning: true, plain: true});
-    }
-    //new class +1
-    const newClass = await models.Classes.findOne({where: {classId:classId}});
-    await models.Classes.update({currentCapacity:newClass.currentCapacity +1}, {where: {classId:classId}, returning: true, plain: true});
-    const ids = await models.Students.update({classId:classId}, {where: {id: id}, returning: true, plain: true});
-    return res.json(ids);
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({ error: 'Something went wrong' });
-  }
+async function updateClass(id, classId) {
+  return db.transaction( async (t) => {
+  const student = await models.Students.findOne({where: {id}, transaction: t});
+  //old class -1
+  if ( student.classId!==null)
+    models.Classes.decrement({currentCapacity: 1}, { where: { classId: student.classId }, transaction: t})
+  //new class +1
+  models.Classes.increment({currentCapacity: 1}, { where: { classId }, transaction: t})
+  await models.Students.update({classId:classId}, {where: {id: id}, returning: true, plain: true, transaction: t});
+  return student;
+})
 }
 
-// gets the model name and return its content
-async function getClassesStudents(req, res) {
-  const classId  = req.params.classId;
-  try {
-    const allData = await models.Students.findAll({
-      where: {
-        classId
-      }
-    });
-    return res.json(allData);
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({ error: 'Something went wrong' });
-  }
+async function getClassesStudents(classId) {
+  return await models.Students.findAll({where: {classId}, transaction: t });
 }
 
 //update student's class and capacity
-async function updateStudentClassToNull(req, res) {
-  const id  = req.params.id;
-  try {
-    const stu = await models.Students.findOne({where: {id}});
-    const oldClass = await models.Classes.findOne({where: {classId: stu.classId}});
-    await models.Classes.update({currentCapacity: oldClass.currentCapacity -1}, {where: {classId:stu.classId}, returning: true, plain: true});
-    const upd = await models.Students.update({classId:null}, {where: {id: id}, returning: true, plain: true});
-    return res.json(upd);
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({ error: 'Something went wrong' });
-  }
+async function updateStudentClassToNull(id) {
+  return db.transaction(async (t) => {
+    const student = await models.Students.findOne({where: {id}});
+    models.Classes.decrement({currentCapacity: 1}, { where: { classId: student.classId }, transaction: t})
+    const update = await models.Students.update({classId:null}, {where: {id: id}, returning: true, plain: true});
+    return update;
+  })
 }
 
 module.exports = {db,
   getAll,
+  getOne,
   remove,
-  addClass,
-  addStudent,
+  add,
   updateClass,
   getClassesStudents,
-  updateStudentClassToNull
+  updateStudentClassToNull,
 }
