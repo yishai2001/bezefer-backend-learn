@@ -1,21 +1,29 @@
 const dal=require('../DAL');
+const studentModel = require('../models/Students');
 
 function getAllStudents() {
-    return dal.getAll("Students");
+    return dal.getAll(studentModel);
 }
 
 function getStudent (id) {
-    return dal.getOne("Students", id, "id");
+    const condition = {where: {id}}
+    return dal.getOne(studentModel, condition);
 }
 
-function removeStudent (id) {
-    return dal.remove("Students", id, "id");
+async function removeStudent (id) {
+    const t = dal.createTransaction();
+    const condition = {where: {id}, transaction: t}
+    const student = await dal.getOne(studentModel,condition);
+    if (student.classId !== undefined)
+        return dal.remove(studentModel, condition);
+    else
+        return dal.remove(studentModel, condition);
 }
 
 function addStudent(data) {
     let {id, firstName, lastName, age, profession} = data;
     const newStudent = {id, firstName, lastName, age, profession};
-    return dal.add("Students", newStudent);
+    return dal.add(studentModel, newStudent);
 }
 
 function updateClass(id, classId) {

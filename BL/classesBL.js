@@ -1,25 +1,28 @@
 const dal=require('../DAL');
+const classModel = require('../models/Classes');
 
 async function getAllClasses() {
-    return dal.getAll("Classes");
+    return dal.getAll(classModel);
 }
 
 async function getClass (classId) {
-    return dal.getOne("Classes", classId, "classId");
+    const condition = {where: {classId}}
+    return dal.getOne(classModel, condition);
 }
 
 async function removeClass (classId) {
-    return dal.remove("Classes", classId, "classId");
+    const condition = {where: {classId}}
+    return dal.remove(classModel, condition, false);
 }
 
 async function addClass(data) {
     let {classId, name, maxSeats} = data;
     const newClass ={classId, name, maxSeats, currentCapacity:0};
-    return dal.add("Classes", newClass);
+    return dal.add(classModel, newClass);
 }
 
 async function getClassesStudents(classId) {
-    return dal.getClassesStudents("Classes");
+    return dal.getClassesStudents(classId);
 }
 
 module.exports = { 

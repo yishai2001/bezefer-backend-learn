@@ -15,38 +15,24 @@ Object.keys(db.models).forEach(function(modelName) {
 });
 
 db.sync();
-async function getAll(modelName) {
-  if (models[modelName] !== undefined)
-    return models[modelName].findAll();
+
+async function getAll(model) {
+  return model.findAll();
 };
 
-async function getOne(modelName, id, paramName){
-  if (models[modelName] !== undefined){
-    let condition ={where:{}};
-    condition.where[paramName]=id;
-    condition.transaction= t;
-    return models[modelName].findAll(condidtion);
-  }
+async function getOne(model, condition){
+  return model.findOne(condition);
 }
 
-async function remove (modelName, id, paramName) {
-  return db.transaction(async (t) => {
-    if (modelName === "Students"){
-      const student = await models.Students.findOne({where: {id}, transaction: t });
-      models.Classes.decrement({currentCapacity: 1}, { where: { classId: student.classId }, transaction: t})
-    }
-    if (models[modelName] !== undefined){
-      let condition ={where:{}};
-      condition.where[paramName]=id;
-      condition.transaction= t;
-      return await models[modelName].destroy(condition);
-    }
-})
+async function remove (model, condition) {
+  // if (tHelper !== undefined)
+  //   condition.transaction=tHelper;
+  //throw new Error("op");
+  return await model.destroy(condition);
 }
 
-async function add(modelName, newObject) {
-  if (models[modelName] !== undefined)
-    return await models[modelName].create(newObject, { transaction: t });
+async function add(model, newObject) {
+  return await model.create(newObject);
 }
 
 //update student's class and capacity
@@ -60,11 +46,11 @@ async function updateClass(id, classId) {
   models.Classes.increment({currentCapacity: 1}, { where: { classId }, transaction: t})
   await models.Students.update({classId:classId}, {where: {id: id}, returning: true, plain: true, transaction: t});
   return student;
-})
+  })
 }
 
 async function getClassesStudents(classId) {
-  return await models.Students.findAll({where: {classId}, transaction: t });
+  return await models.Students.findAll({where: {classId}});
 }
 
 //update student's class and capacity
@@ -77,6 +63,27 @@ async function updateStudentClassToNull(id) {
   })
 }
 
+async function decreceCurrentCapacity(classId, needsTransaction){
+  let tHelper = db.transaction();
+  if (needsTransaction)
+    models.Classes.decrement({currentCapacity: 1}, { where: { classId }, transaction: tHelper})
+  else
+    models.Classes.decrement({currentCapacity: 1}, { where: { classId }})
+  return tHelper;
+}
+
+async function createTransaction (){
+  const t = await db.transaction();
+  return t;
+}
+
+async function increceCurrentCapacity(classId, t){
+  if (t!==undefined)
+    models.Classes.increment({currentCapacity: 1}, { where: { classId }, transaction: t})
+  else
+    models.Classes.increment({currentCapacity: 1}, { where: { classId }})
+}
+
 module.exports = {db,
   getAll,
   getOne,
@@ -85,4 +92,7 @@ module.exports = {db,
   updateClass,
   getClassesStudents,
   updateStudentClassToNull,
+  decreceCurrentCapacity,
+  increceCurrentCapacity,
+  createTransaction
 }
